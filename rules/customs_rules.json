@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "version": "2025-09-01",
+    "jurisdiction": "DE (EU‑Binnenverkehr, Privatbedarf)"
+  },
+  "fuel": {
+    "reserve_can": {
+      "max_liters": 20,
+      "rule_id": "FUEL-RCAN-20"
+    }
+  },
+  "categories": {
+    "cigarettes": {
+      "unit": "pieces",
+      "per_person": 800,
+      "pack_size": 20,
+      "rule_id": "TOB-CIG-800",
+      "priv_rule": "TOB-PRIV-1"
+    },
+    "beer": {
+      "unit": "liters",
+      "per_person": 110,
+      "rule_id": "ALC-BEER-110"
+    },
+    "spirits": {
+      "unit": "liters",
+      "per_person": 10,
+      "rule_id": "ALC-SPIR-10"
+    },
+    "wine": {
+      "unit": "liters",
+      "per_person": 90,
+      "rule_id": "ALC-WINE-90"
+    }
+  },
+  "rounding": {
+    "cigarettes_pack_size": 20,
+    "beer_bottle_l": 0.5,
+    "spirits_bottle_l": 0.7
+  },
+  "messaging": {
+    "compliance": {
+      "ok": "Konform",
+      "warn": "Warnung",
+      "block": "Nicht konform"
+    }
+  }
+}

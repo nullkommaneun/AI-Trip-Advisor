@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grenztrip‑Entscheider (AI‑first MVP)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="row">
+      <h1>Grenztrip‑Entscheider (DE ↔ CZ) · AI‑MVP</h1>
+      <div class="status">
+        <span class="chip" id="chip-data"    title="Datenquellen">Daten</span>
+        <span class="chip" id="chip-policy"  title="Regelwerk">Regeln</span>
+        <span class="chip" id="chip-ai"      title="KI‑Erklärung">KI</span>
+        <span class="chip" id="chip-compute" title="Berechnung">Rechnen</span>
+      </div>
+      <div class="mode">
+        <span class="tiny">Einfach</span>
+        <input id="expert" type="checkbox" hidden>
+        <label class="switch" for="expert" aria-label="Expertenmodus umschalten"><span class="thumb"></span></label>
+        <span class="tiny">Experte</span>
+      </div>
+    </div>
+    <div id="alerts"></div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card inputs">
+        <h2>Eingaben</h2>
+        <div class="row">
+          <div class="field">
+            <label>Start</label>
+            <input id="origin" value="Zwickau" />
+          </div>
+          <div class="field">
+            <label>Zwischenstopps</label>
+            <input id="stops" value="Ostrov; Potůčky" />
+          </div>
+          <div class="field">
+            <label>Gesamtdistanz (km)</label>
+            <input id="distanceKm" type="number" min="1" step="1" value="150" />
+          </div>
+          <div class="field">
+            <label>Personen (≥18)</label>
+            <input id="persons" type="number" min="1" step="1" value="2" />
+          </div>
+          <div class="field">
+            <label>Fahrzeug</label>
+            <select id="vehicle"></select>
+          </div>
+          <div class="field">
+            <label>Ø‑Reisegeschwindigkeit (km/h)</label>
+            <input id="avgSpeed" type="number" min="30" max="130" step="1" value="70" />
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <h2>Waren & Preise (editierbar)</h2>
+        <div class="row">
+          <div class="field">
+            <label>Tanken vor Ort (Liter)</label>
+            <input id="fuelTopUpL" type="number" min="0" step="1" value="40" />
+            <div class="inline tiny"><label>Reservekanister (L)</label><input id="reserveL" type="number" min="0" step="1" value="0" style="width:80px"></div>
+          </div>
+          <div class="field">
+            <label>Bier (Liter gesamt)</label>
+            <input id="beerL" type="number" min="0" step="1" value="16" />
+            <div class="inline tiny">
+              <label>CZ €/L</label><input id="beerCZ" type="number" step="0.01" value="0.80" style="width:90px">
+              <label>DE €/L</label><input id="beerDE" type="number" step="0.01" value="1.30" style="width:90px">
+            </div>
+          </div>
+          <div class="field">
+            <label>Spirituosen (Liter gesamt)</label>
+            <input id="spiritsL" type="number" min="0" step="0.1" value="0.7" />
+            <div class="inline tiny">
+              <label>CZ €/L</label><input id="spiritsCZ" type="number" step="0.01" value="12.00" style="width:90px">
+              <label>DE €/L</label><input id="spiritsDE" type="number" step="0.01" value="16.00" style="width:90px">
+            </div>
+          </div>
+          <div class="field">
+            <label>Zigaretten (Stangen à 10 Pck.)</label>
+            <input id="cigCartons" type="number" min="0" step="1" value="0" />
+            <div class="inline tiny">
+              <label>CZ €/Pack</label><input id="cigCZ" type="number" step="0.01" value="5.00" style="width:90px">
+              <label>DE €/Pack</label><input id="cigDE" type="number" step="0.01" value="8.00" style="width:90px">
+            </div>
+            <div class="inline tiny" style="margin-top:6px">
+              <input id="cigExternal" type="checkbox"><label for="cigExternal">Zigaretten für Kollegen (nicht anwesend)</label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Lebensmittel (CZ‑Warenwert in €)</label>
+            <input id="foodCZsum" type="number" min="0" step="1" value="0" />
+            <div class="inline tiny">
+              <label>DE‑Referenz (gleiche Waren) €</label><input id="foodDEsum" type="number" step="1" value="0" style="width:120px">
+            </div>
+          </div>
+          <div class="field">
+            <label>Essen in Potůčky in ROI rechnen?</label>
+            <select id="mealROI">
+              <option value="no" selected>Nein (Freizeit)</option>
+              <option value="yes">Ja (als Kosten)</option>
+            </select>
+            <div class="inline tiny">
+              <label>Essenskosten €</label><input id="mealCost" type="number" step="1" value="0" style="width:120px">
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:6px">
+          <div class="field">
+            <label>DE Spritpreis €/L</label>
+            <input id="fuelDE" type="number" step="0.01" value="1.95">
+          </div>
+          <div class="field">
+            <label>CZ Spritpreis €/L</label>
+            <input id="fuelCZ" type="number" step="0.01" value="1.55">
+          </div>
+          <div class="field">
+            <label>Fixkosten (Maut/Park) €</label>
+            <input id="fixedCost" type="number" step="1" value="0">
+          </div>
+          <div class="field">
+            <label>Zeitwert €/h (optional)</label>
+            <input id="timeValue" type="number" step="1" value="0">
+          </div>
+          <div class="field">
+            <label>FX CZK/EUR (nur Info)</label>
+            <input id="fx" type="number" step="0.1" value="25.0">
+          </div>
+          <div class="field">
+            <label style="visibility:hidden">Berechnen</label>
+            <button id="calc" class="primary">Berechnen</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ampel" class="card ampel">
+        <div class="result">
+          <span id="ampelBadge" class="badge">–</span>
+          <div class="big" id="net"></div>
+          <div class="muted" id="perh"></div>
+        </div>
+        <div class="muted" id="headline">Nutze die Eingaben links und klicke „Berechnen“.</div>
+      </div>
+
+      <div class="actions">
+        <div class="tile">
+          <div class="title">Nächste beste Aktion</div>
+          <div id="nextAction" class="muted">–</div>
+          <div><button id="applyPatch" class="primary" disabled>Anwenden</button></div>
+        </div>
+        <div class="tile">
+          <div class="title">Zoll‑Status</div>
+          <div id="customsText" class="muted">–</div>
+          <div class="tiny" id="rulesMeta"></div>
+        </div>
+        <div class="tile">
+          <div class="title">Robustheit</div>
+          <div id="robust" class="muted">±10% Preise → P80: –</div>
+          <button id="simulate" class="ghost">Kurz‑Simulation</button>
+        </div>
+      </div>
+
+      <div class="card details">
+        <h2>Details & Aufschlüsselung (Expertenmodus)</h2>
+        <table>
+          <tbody id="breakdown"></tbody>
+        </table>
+        <div class="footer tiny">
+          Regelwerk: <span id="rulesVersion">v—</span> · Hinweis: Keine Rechtsberatung. Richtmengen für Privatbedarf.
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="kpi">Ziel:</span> In ≤10 s zu einer klaren Aussage + 1 Aktion. Ergebnisse sind reproduzierbar; alle Regeln sind datengetrieben.
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
